@@ -67,6 +67,46 @@ func (r *PostgresRepository) GetAllMovies() ([]*models.Movie, error) {
 	return movies, nil
 }
 
+func (r *PostgresRepository) GetMovieByID(id int) (*models.Movie, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), connectionTimeout)
+	defer cancel()
+
+	query := `
+		select
+			id, title, release_date, runtime,
+			mpaa_rating, description, coalesce(image, ''),
+			created_at, updated_at
+		from
+			movies
+		where
+			id = $1
+		order by
+			title
+	`
+
+	row := r.DB.QueryRowContext(ctx, query, id)
+
+	var movie models.Movie
+
+	err := row.Scan(
+		&movie.ID,
+		&movie.Title,
+		&movie.ReleaseDate,
+		&movie.Duration,
+		&movie.Rating,
+		&movie.Description,
+		&movie.Image,
+		&movie.CreatedAt,
+		&movie.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &movie, nil
+}
+
 func (r *PostgresRepository) GetUserByEmail(email string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), connectionTimeout)
 	defer cancel()
