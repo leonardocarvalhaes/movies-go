@@ -21,6 +21,14 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Drops the tables so they can be recreated
+--
+DROP TABLE public.movies_genres;
+DROP TABLE public.genres;
+DROP TABLE public.movies;
+DROP TABLE public.users;
+
+--
 -- Name: genres; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -55,6 +63,8 @@ CREATE TABLE public.movies (
     title character varying(512),
     release_date date,
     runtime integer,
+    rating float,
+    vote_count integer,
     mpaa_rating character varying(10),
     description text,
     image character varying(255),
@@ -265,4 +275,3 @@ ALTER TABLE ONLY public.movies_genres
 --
 -- PostgreSQL database dump complete
 --
-

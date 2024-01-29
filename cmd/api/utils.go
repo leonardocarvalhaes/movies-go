@@ -1,17 +1,13 @@
 package main
 
 import (
+	"backend/internal/dtos"
+	"backend/internal/models"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 )
-
-type JSONResponse struct {
-	Error   bool   `json:"error"`
-	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
-}
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
 	out, err := json.Marshal(data)
@@ -68,9 +64,23 @@ func (app *application) errorJSON(w http.ResponseWriter, err error, status ...in
 		statusCode = status[0]
 	}
 
-	var payload JSONResponse
+	var payload dtos.JSONResponse
 	payload.Error = true
 	payload.Message = err.Error()
 
 	app.writeJSON(w, statusCode, payload)
+}
+
+func (app *application) fromRequestToMovie(w http.ResponseWriter, r *http.Request) (*models.Movie, error) {
+	var movie models.Movie
+
+	err := app.readJSON(w, r, &movie)
+
+	if err != nil {
+		return nil, err
+	}
+
+	app.downloadMovieData(&movie)
+
+	return &movie, nil
 }
